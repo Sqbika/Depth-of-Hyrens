@@ -1,5 +1,7 @@
 const entity = require('./game/entity');
 const actions = require('./game/spells');
+const warriorai = require('./game/warriorai');
+const mageai = require('./game/mageai');
 
 module.exports = class Game {
     constructor() {
@@ -10,6 +12,7 @@ module.exports = class Game {
                         Math.random() > 0.5 ? 
                             new entity("warrior") : 
                             new entity("mage")];
+        this.enemies.forEach((e) => e.addai(e.class == "mage" ? new mageai(e) : new warriorai(e)));
         this.player = new entity("player");
 
         this.commands =  {
@@ -17,7 +20,7 @@ module.exports = class Game {
             help: (arg) => {
                 console.log(arg); 
                 if (arg == '') {
-                    return "Avaliable commands: status, help, " + Object.keys(actions).join(', ');
+                    return "Avaliable commands: status, help, " + Object.keys(actions).filter(e => this.player.abilities.indexOf(e) !== -1).join(', ');
                 }
                 return actions[arg.toLowerCase()].text; 
             }
@@ -36,6 +39,7 @@ module.exports = class Game {
         var result = "";
         var action = actions[command];
         if (action == undefined) return "Command not found.";
+        if (this.player.abilities.indexOf(command) == -1) return "You do not know how to use that spell.";
         if (this.player.hasEnoughAP(action.apcost)) {
             if (action.focus == "target")
             {
@@ -49,10 +53,17 @@ module.exports = class Game {
                 }
             } else {
                 result += action.effect(this.player);
+                this.player.deduceAP(action.apcost);
             }
             if (this.player.ap == 0) {
                 result += "\nEnemies turn.";
                 result += this.update();
+                this.enemies.forEach((ele) => {
+                    var cuc = ele.AI.update(this.enemies, this.player);
+                    if (cuc !== '')
+                        result += "\n" + cuc;
+                    ele.intent = Math.random() > 0.15 ? ele.AI.simulate(this.enemies, this.player) : "?" ; 
+                })
                 result += this.checkdead();
                 result += "\nYour turn.";
                 this.player.ap = this.player._default.ap;
@@ -66,7 +77,7 @@ module.exports = class Game {
     checkdead() {
         var result = "";
         this.enemies.forEach((ele) => {
-            if (ele.hp <= 0) {
+            if (ele.hp <= 0 && !ele.dead) {
                 ele.dead = true;
                 result += `${ele.name} has died.`
             }
@@ -83,10 +94,6 @@ module.exports = class Game {
     }
 
     update() {
-        var result = "";
-        this.enemies.forEach((ele) => {
-            result += ele.update() + "\n";
-        });
-        return result;
+        return this.enemies.map((ele) => ele.update()).filter((e) => e !== '').join('\n');
     }
 }

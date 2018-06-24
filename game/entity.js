@@ -18,7 +18,7 @@ module.exports = class Entity {
         }
     }
 
-    assign(AI) {
+    addai(AI) {
         if (AI !== undefined) {
             this.AI = AI;
         }
@@ -52,15 +52,13 @@ module.exports = class Entity {
             result += `-${amount} HP`;
         }
         result += ` -> ${this.hp} HP, ${this.shield} SLD)`;
-        //console.log(source.buffs[source.buffs.indexOf(buffs["stupid"])]);
-        console.log(source.buffs);
         if (source.buffs.indexOf(buffs["stupid"]) !== -1) result += "\n" + source.buffs[source.buffs.indexOf(buffs["stupid"])].effect(source) + "\n" + endresult;
         return result;
     }
 
     //#region Misc Funcions
 
-    addStrenght(amount) {
+    addStrength(amount) {
        this.strength += amount;
     }
 
@@ -95,9 +93,10 @@ module.exports = class Entity {
         this.ap -= amount;
     }
 
-    update() {
+    update(enemies, player) {
         var result = "";
         if (this._default.mana > 0) this.mana++;
+        this.ap = this._default.ap;
         this.addShield(this.focus);
         this.buffs.forEach((ele) => {
             if (ele.name == "daze") result += "\n" + ele.effect(this);
@@ -107,12 +106,12 @@ module.exports = class Entity {
                 result += `\nEffect [${ele.name}] has worn off on ${this.name}.`;
             }
         });
-        if (this.AI !== undefined) result += "\n" + this.AI.update(this);
         return result;
     }
 
     format() {
-        return `${this.name} [HP:${this.hp}${this.shield !== 0 ? `(+${this.shield} SLD)` : ''}, AP:${this.ap}${this.mana !== 0 ? `, MAN: ${this.mana}` : ''}${this.strength !== 0 ? `, STR: ${this.strength}` : ''}${this.focus !== 0 ? `, FCS: ${this.focus}` : ''}] ${this.buffs.length == 0 ? '' : `[${this.buffs.map((ele) => ele.name.charAt(0).toUpperCase() + ele.name.slice(1)).join(', ')}]`}`
+        return !this.dead ? `${this.name} [HP:${this.hp}${this.shield !== 0 ? `(+${this.shield} SLD)` : ''}, AP:${this.ap}${this.mana !== 0 ? `, MAN: ${this.mana}` : ''}${this.strength !== 0 ? `, STR: ${this.strength}` : ''}${this.focus !== 0 ? `, FCS: ${this.focus}` : ''}] ${this.buffs.length == 0 ? '' : `[${this.buffs.map((ele) => ele.name.charAt(0).toUpperCase() + ele.name.slice(1)).join(', ')}]`}` :
+        `${this.name} [Dead]`;
     }
 
     //#endregion

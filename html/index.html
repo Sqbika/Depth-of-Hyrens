@@ -4,8 +4,11 @@
         <link rel="stylesheet" type="text/css" href="style.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <script>
+            var lastcommand = "help";
+
             listenToEnter = (ev) => {
                 if (event.key == 'Enter') {
+                    lastcommand = $('#commands')[0].value;
                     if ($('#commands')[0].value !== "clear") {
                         $('#log')[0].value += "\n\n>" + $('#commands')[0].value;
                         $.post('/', {
@@ -20,6 +23,9 @@
                         $('#log')[0].value = "";
                     }
                     $('#commands')[0].value = "";
+                }
+                if (event.key == "ArrowUp") {
+                    $('#commands')[0].value = lastcommand;
                 }
             }
         </script>
