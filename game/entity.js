@@ -12,7 +12,7 @@ module.exports = class Entity {
             this.dead = false;
             this.buffs = this.buffs.map(ele => buffs[ele]);
             this.intent = "";
-            this.name = classtype == "player" ? "Player" : names[Math.floor(Math.random*names.length)];
+            this.name = classtype == "player" ? "Player" : names[Math.floor(Math.random()*names.length)];
         } else {
             console.log(`Classtype [${classtype}] not found.`);
         }
@@ -33,18 +33,29 @@ module.exports = class Entity {
         return this.mana >= cost;
     }
 
-    damage(amount, spell) {
+    damage(amount, spell, source, target) {
+        var endresult = "";
+        var result = "(";
         if (this.shield !== 0) {
             if (this.spell == "zap") { amount *= 2; }
             var dmg = amount;
             this.damageShield(this.shield - amount < 0 ? this.shield : amount);
+            if (source.buffs.indexOf(buffs["retaliate"]) !== -1) endresult = "\n" + source.buffs.indexOf(buffs["retaliate"]).effect(source, target);
             amount -= dmg;
+            result += `-${dmg} SLD `;
         }
         if (this.hp <= amount) {
             this.setHP(0);
+            result += `Died`;
         } else {
             this.setHP(this.hp - amount);
+            result += `-${amount} HP`;
         }
+        result += ` -> ${this.hp} HP, ${this.shield} SLD)`;
+        //console.log(source.buffs[source.buffs.indexOf(buffs["stupid"])]);
+        console.log(source.buffs);
+        if (source.buffs.indexOf(buffs["stupid"]) !== -1) result += "\n" + source.buffs[source.buffs.indexOf(buffs["stupid"])].effect(source) + "\n" + endresult;
+        return result;
     }
 
     //#region Misc Funcions
@@ -85,19 +96,23 @@ module.exports = class Entity {
     }
 
     update() {
+        var result = "";
         if (this._default.mana > 0) this.mana++;
-        this.ap += this.appt;
         this.addShield(this.focus);
         this.buffs.forEach((ele) => {
-            if (ele.name == "daze") this.ap--;
+            if (ele.name == "daze") result += "\n" + ele.effect(this);
             ele.tick--;
-            if (ele.tick == 0) helper.remove(this.buffs, ele);
+            if (ele.tick == 0) {
+                helper.remove(this.buffs, ele);
+                result += `\nEffect [${ele.name}] has worn off on ${this.name}.`;
+            }
         });
-        if (this.AI !== undefined) return this.AI.update(this);
+        if (this.AI !== undefined) result += "\n" + this.AI.update(this);
+        return result;
     }
 
     format() {
-        return `${this.name} [HP:${this.hp} ${this.shield !== 0 ? `(+${this.shield} SLD)` : ''}, AP:${this.ap}, ${this.mana !== 0 ? `, MAN: ${this.mana}` : ''} ${this.strength !== 0 ? `, STR: ${this.strength}` : ''} ${this.focus !== 0 ? `, FCS: ${this.focus}` : ''}] ${this.buffs.length == 0 ? '' : `[${this.buffs.map((ele) => ele.name.charAt(0).toUpperCase() + ele.name.slice(1)).join(', ')}]`}`
+        return `${this.name} [HP:${this.hp}${this.shield !== 0 ? `(+${this.shield} SLD)` : ''}, AP:${this.ap}${this.mana !== 0 ? `, MAN: ${this.mana}` : ''}${this.strength !== 0 ? `, STR: ${this.strength}` : ''}${this.focus !== 0 ? `, FCS: ${this.focus}` : ''}] ${this.buffs.length == 0 ? '' : `[${this.buffs.map((ele) => ele.name.charAt(0).toUpperCase() + ele.name.slice(1)).join(', ')}]`}`
     }
 
     //#endregion

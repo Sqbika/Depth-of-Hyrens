@@ -1,26 +1,19 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
+const Game = require('./game');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(express.static('html'));
 
-app.post('/', (req, res) => {
-    console.log("A request was made: " + JSON.stringify(req.body.stuff));
-});
+var game = new Game();
 
-app.get('/', (req, res) => {
-    console.log('A user has logged on.');
-})
+app.post('/', (req, res) => {
+    res.send({text: game.parse(req.body.stuff)});
+});
 
 app.listen(3000, () => {
     console.log("Webserver online!");
 });
-
-//Test
-const Entity = require('./game/entity');
-
-var a = new Entity("mage");
-a.damage(4);

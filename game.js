@@ -11,42 +11,56 @@ module.exports = class Game {
                             new entity("warrior") : 
                             new entity("mage")];
         this.player = new entity("player");
-        this.playerturn = true;
+
+        this.commands =  {
+            status: () => { return this.player.format() + "\nvs\n" + this.enemies.map(ele => ele.format()).join('\n')},
+            help: (arg) => {
+                console.log(arg); 
+                if (arg == '') {
+                    return "Avaliable commands: status, help, " + Object.keys(actions).join(', ');
+                }
+                return actions[arg.toLowerCase()].text; 
+            }
+        }
     }
 
     parse(text) {
-        if (!playerturn) return "Not your turn.";
         if (this.player.dead) return "You are dead. Please refresh the page to play.";
         var command = text.split(' ')[0].toLowerCase();
         var arg = text.split(' ').slice(1).join(' ');
-        if (commands[command] !== undefined) return commands[command](arg);
-        return action(command, arg);
+        if (this.commands[command] !== undefined) return this.commands[command](arg);
+        return this.action(command, arg);
     }
 
     action(command, arg) {
         var result = "";
         var action = actions[command];
         if (action == undefined) return "Command not found.";
-        if (player.hasEnoughAP(action.apcost)) {
+        if (this.player.hasEnoughAP(action.apcost)) {
             if (action.focus == "target")
             {
                 var target = this.findEnemy(arg);
                 if (target == undefined) {
                     return "Enemy not found.";
                 } else {
-                    result += action.effect(player, target);
-                    result += this.checkdead;
+                    result += action.effect(this.player, target);
+                    this.player.deduceAP(action.apcost);
+                    result += this.checkdead();                    
                 }
             } else {
-                result += action.
+                result += action.effect(this.player);
             }
-        }
-    }
-
-    turn() {
-        if (this.playerturn) {
-            
-        }
+            if (this.player.ap == 0) {
+                result += "\nEnemies turn.";
+                result += this.update();
+                result += this.checkdead();
+                result += "\nYour turn.";
+                this.player.ap = this.player._default.ap;
+            } else {
+                result += `\nYou have ${this.player.ap} AP left.`;
+            }
+            return result;
+        } else return "Not enough AP for this action.";
     }
 
     checkdead() {
@@ -75,9 +89,4 @@ module.exports = class Game {
         });
         return result;
     }
-}
-
-var commands = {
-    status: () => { return this.player.format() + "\nvs\n" + this.enemies.map(ele => ele.format()).join('\n')},
-    help: (arg) => { return actions[arg.toLowerCase()].text; }
 }
