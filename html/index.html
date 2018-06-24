@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <title>Depth of </title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        <script>
+            listenToEnter = (ev) => {
+                console.log(ev);
+                if (event.key == 'Enter') {
+                    $.post('/', {
+                        text: $('#commands').value
+                    });
+                    return false;
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div id = "textbox"></div>
+        <input id="commands" type="text" name="action" onkeydown="listenToEnter(event)">
+    </body>
+</html>
