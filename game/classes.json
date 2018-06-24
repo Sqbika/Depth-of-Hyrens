@@ -10,7 +10,7 @@
         "abilities": [
             "hit", "lunge", "shield", "focus", "bolster", "consume"
         ],
-        "buffs": ["stupid"]
+        "buffs": []
     },
     "warrior": {
         "class": "warrior",
