@@ -1,0 +1,17 @@
+#textbox {
+    width: 50%;
+    margin: auto;
+    margin-top: 5%;
+}
+
+#log {
+    width: 80%;
+    resize: none;
+    height: 30%;
+}
+
+#commands {
+    margin-top: 5px;
+    width: 80%;
+}
+

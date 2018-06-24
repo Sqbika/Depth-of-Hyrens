@@ -1,0 +1,43 @@
+{
+    "player": {
+        "hp": 30,
+        "appt": 3,
+        "ap": 3,
+        "mana": 0,
+        "shield": 0,
+        "strenght": 0,
+        "focus": 0,
+        "abilities": [
+            "hit", "lunge", "shield", "focus", "bolster", "consume"
+        ],
+        "buffs": []
+    },
+    "warrior": {
+        "hp": 15,
+        "appt": 1,
+        "ap": 1,
+        "mana": 0,
+        "shield": 0,
+        "strenght": 0,
+        "focus": 0,
+        "short": "W",
+        "abilities": [
+            "hit", "shield", "slam", "confuse"
+        ],
+        "buffs": ["stupid"]
+    },
+    "mage": {
+        "hp": 12,
+        "appt": 1,
+        "ap": 1,
+        "mana": 5,
+        "shield": 0,
+        "strenght": 0,
+        "focus": 0,
+        "short": "M",
+        "abilities": [
+            "zap", "buff", "heal"
+        ],
+        "buffs": []
+    }
+}

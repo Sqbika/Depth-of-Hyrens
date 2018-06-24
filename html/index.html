@@ -8,7 +8,7 @@
                 console.log(ev);
                 if (event.key == 'Enter') {
                     $.post('/', {
-                        text: $('#commands').value
+                        stuff: $('#commands')[0].value
                     });
                     return false;
                 }
@@ -16,7 +16,9 @@
         </script>
     </head>
     <body>
-        <div id = "textbox"></div>
-        <input id="commands" type="text" name="action" onkeydown="listenToEnter(event)">
+        <div id = "textbox">
+                <textarea id="log">Welcome to Depth of Hyrens Player!</textarea><br>
+                <input id="commands" type="text" name="action" onkeydown="listenToEnter(event)">
+        </div>
     </body>
 </html>
